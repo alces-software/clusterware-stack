@@ -27,7 +27,7 @@ DOC
 # along with Symphony.  If not, see <http://www.gnu.org/licenses/>.            #
 #                                                                              #
 # For more information on the Symphony Toolkit, please visit:                  #
-# http://www.alces-software.org/symphony                                       #
+# https://github.com/alces-software/symphony                                       #
 #                                                                              #
 ################################################################################
 
@@ -74,7 +74,7 @@ if [ -z $STEP_INTERVAL ]; then
  STEP_INTERVAL=0.5
 fi
 
-. ${ALCES_ROOT}/opt/symphony/lib/stack/lib/node_gather
+. ${ALCES_ROOT}/opt/clusterware/lib/stack/lib/node_gather
 
 export OUTPUT=0
 export IPMI_PASSWORD="${PASSWORD}"

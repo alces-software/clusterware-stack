@@ -27,7 +27,7 @@ DOC
 # along with Symphony.  If not, see <http://www.gnu.org/licenses/>.            #
 #                                                                              #
 # For more information on the Symphony Toolkit, please visit:                  #
-# http://www.alces-software.org/symphony                                       #
+# https://github.com/alces-software/symphony                                       #
 #                                                                              #
 ################################################################################
 
@@ -46,7 +46,7 @@ fi
 usage()
 {
   echo "(c) 2008-2014 Alces Software Ltd & Stephen F Norledge"
-  echo "alces sync command, perform sync of Alces symphony toolset with director" 
+  echo "alces sync command, perform sync of Alces clusterware toolset with director" 
   echo "usage: alces sync"
   echo "  options:"
   echo "    -c specify command [pull|push]"
@@ -86,7 +86,7 @@ case "${CMD}" in
      for NODE in $NODES; do
        echo -n "Preparing $NODE.."
        ssh $NODE mkdir -p $ALCES_ROOT
-       rsync -pa /etc/profile.d/alces-symphony.* $NODE:/etc/profile.d/. && echo OK || echo FAIL
+       rsync -pa /etc/profile.d/alces-clusterware.* $NODE:/etc/profile.d/. && echo OK || echo FAIL
        echo -n "Syncing to $NODE.."
        rsync -pa $ALCES_ROOT/* $NODE:$ALCES_ROOT/. && echo OK || echo FAIL
      done

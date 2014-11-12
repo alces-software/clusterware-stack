@@ -1,4 +1,3 @@
-alces-symphony-stack
-====================
+Alces Clusterware Stack Module
+==============================
 
-alces-symphony-stack

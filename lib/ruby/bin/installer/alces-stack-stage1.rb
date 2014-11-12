@@ -20,7 +20,7 @@
 # along with Symphony.  If not, see <http://www.gnu.org/licenses/>.            #
 #                                                                              #
 # For more information on the Symphony Toolkit, please visit:                  #
-# http://www.alces-software.org/symphony                                       #
+# https://github.com/alces-software/symphony                                       #
 #                                                                              #
 ################################################################################
 require 'fileutils'
