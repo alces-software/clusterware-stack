@@ -104,20 +104,14 @@ doing 'Configure'
 say_done $?
 
 if [ -f ${alces_PATH}/etc/init.d/alces-init ]; then
+  title "Installing Alces init"
   doing 'Setting up alces init template'
   mkdir -p ${alces_PATH}/profiles
   ln -snf ${alces_PATH}/etc/init.d/alces-init ${alces_PATH}/profiles/alces-init.init
   say_done $?
 fi
 
-doing "Prepare puppet links"
-mkdir -p ${alces_PATH}/
-#ln -snf ${alces_PATH}/etc/puppet/modules ${alces_PATH}/puppetmodules
-ln -snf ${alces_PATH}/etc/puppet/hieradata ${alces_PATH}/puppetconfig
-#ln -snf ${alces_PATH}/etc/puppet/modules/common/alces_stack/templates ${alces_PATH}/puppettemplates
-#ln -snf ${alces_PATH}/etc/puppet/modules/common/alces_stack/templates/partials ${alces_PATH}/puppetpartials
-say_done $?
-
+title "Site specific"
 doing "Prepare Site specific Links"
 mkdir -p ${alces_PATH}/site_specific
 ln -snf ${alces_PATH}/etc/puppet/environments/alceshpc/modules/alces_stack/templates/config/alces/site_compute.sh ${alces_PATH}/site_specific/compute.sh
