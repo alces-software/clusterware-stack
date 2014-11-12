@@ -1,0 +1,97 @@
+<<DOC
+: '
+: NAME: sync
+: SYNOPSIS: Sync Alces Symphony Toolkit with director
+: VERSION: 1.0.0
+: '
+DOC
+#!/bin/bash
+################################################################################
+# (c) Copyright 2007-2014 Alces Software Ltd & Stephen F Norledge.             #
+#                                                                              #
+# Alces HPC Software Toolkit                                                   #
+#                                                                              #
+# This file/package is part of Symphony                                        #
+#                                                                              #
+# Symphony is free software: you can redistribute it and/or modify it under    #
+# the terms of the GNU Affero General Public License as published by the Free  #
+# Software Foundation, either version 3 of the License, or (at your option)    #
+# any later version.                                                           #
+#                                                                              #
+# Symphony is distributed in the hope that it will be useful, but WITHOUT      #
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or        #
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License #
+# for more details.                                                            #
+#                                                                              #
+# You should have received a copy of the GNU Affero General Public License     #
+# along with Symphony.  If not, see <http://www.gnu.org/licenses/>.            #
+#                                                                              #
+# For more information on the Symphony Toolkit, please visit:                  #
+# http://www.alces-software.org/symphony                                       #
+#                                                                              #
+################################################################################
+
+ALCES_ROOT=/var/lib/alces/nodeware
+ALCES_ETC=$ALCES_ROOT/etc
+
+if [ ! -d "$ALCES_ETC" ]; then
+  echo "$0: configuration directory not available"
+  echo ""
+  echo "The configuration directory (${ALCES_ETC}) is not available - please ensure that ${ALCES_ROOT} is mounted.  If your cluster is configured with high availability services, you should check that these have been started." | fold -s -w70
+  echo ""
+  echo "If problems persist, please contact Alces Customer Support at <support@alces-software.com>." | fold -s -w70
+  exit 1
+fi
+
+usage()
+{
+  echo "(c) 2008-2014 Alces Software Ltd & Stephen F Norledge"
+  echo "alces sync command, perform sync of Alces symphony toolset with director" 
+  echo "usage: alces sync"
+  echo "  options:"
+  echo "    -c specify command [pull|push]"
+  echo
+}
+
+
+while ! [ -z "${*}" ]; do
+
+  case "${1}" in
+    '-h')
+      usage
+      exit 0
+      ;;
+    '-c')
+      CMD="${2}"
+      shift 1
+      ;;
+    *)
+      NODES="${NODES} ${1}"
+      ;;
+  esac
+  shift 1
+done
+
+if [ -z $CMD ]; then
+  CMD='pull'
+fi
+
+case "${CMD}" in
+  'push')
+     if [ -z "$NODES" ]; then
+       echo "Please specify target nodes" >&2
+       exit 1
+     fi
+
+     for NODE in $NODES; do
+       echo -n "Preparing $NODE.."
+       ssh $NODE mkdir -p $ALCES_ROOT
+       rsync -pa /etc/profile.d/alces-symphony.* $NODE:/etc/profile.d/. && echo OK || echo FAIL
+       echo -n "Syncing to $NODE.."
+       rsync -pa $ALCES_ROOT/* $NODE:$ALCES_ROOT/. && echo OK || echo FAIL
+     done
+   ;;
+   'pull')
+     rsync -pav symphony-director:$ALCES_ROOT/* $ALCES_ROOT/.
+   ;;
+esac

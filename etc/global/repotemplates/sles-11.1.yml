@@ -1,0 +1,55 @@
+---
+repos:
+- !ruby/object:Alces::Stack::Repo::Repository
+  name: base
+  baseurl: http://download.alces-software.com/repos/upstream/suse/SLE-11SP1/server/
+  is_local: false
+  link_dirs: []
+  extra_files:
+  - :dest: images/kernel
+    :src: http://download.alces-software.com/repos/upstream/suse/SLE-11SP1/server/boot/x86_64/loader/linux
+  - :dest: images/initrd
+    :src: http://download.alces-software.com/repos/upstream/suse/SLE-11SP1/server/boot/x86_64/loader/initrd
+  gpgkey: 
+  nicename: Base repo
+  priority: 10
+  enabled: true
+- !ruby/object:Alces::Stack::Repo::Repository
+  name: sdk
+  baseurl: http://download.alces-software.com/repos/upstream/suse/SLE-11SP1/sdk
+  is_local: false
+  extra_files: []
+  link_dirs: []
+  gpgkey: 
+  nicename: SDK repo
+  priority: 10
+  enabled: true
+- !ruby/object:Alces::Stack::Repo::Repository
+  name: ha
+  baseurl: http://download.alces-software.com/repos/upstream/suse/SLE-11SP1/ha
+  is_local: false
+  extra_files: []
+  link_dirs: []
+  gpgkey: 
+  nicename: HA repo
+  priority: 10
+  enabled: true
+- !ruby/object:Alces::Stack::Repo::Repository
+  baseurl: http://download.alces-software.com/repos/alces/3.0/suse/SLE-11SP1/alces-hpc/base/
+  enabled: true
+  extra_files: []
+  link_dirs: []
+  is_local: false
+  name: alces-hpc
+  nicename: Alces HPC Core
+  priority: 5
+  gpgkey: file:///var/lib/alces/nodeware/etc/pki/rpm-gpg/RPM-GPG-KEY-alces-software
+- !ruby/object:Alces::Stack::Repo::Repository  
+  baseurl: file:///media/repo/custom/
+  enabled: true
+  extra_files: []
+  link_dirs: []
+  is_local: false
+  name: custom
+  nicename: Alces CUSTOM
+  priority: 4

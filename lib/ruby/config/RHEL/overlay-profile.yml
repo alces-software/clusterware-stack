@@ -1,0 +1,7 @@
+:name: template
+:description: Example overlay profile
+:overlays:
+  overlays:
+   - A
+   - B
+   - C

@@ -1,0 +1,10 @@
+---
+repos:
+- !ruby/object:Alces::Stack::Repo::Repository
+  name: moose
+  baseurl: http://mooseulike/
+  is_local: false
+  extra_files: []
+  link_dirs: []
+  gpgkey: 
+  priority: 99

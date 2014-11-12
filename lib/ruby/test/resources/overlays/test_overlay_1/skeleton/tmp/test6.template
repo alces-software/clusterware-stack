@@ -1,0 +1,11 @@
+start line
+<% 5.times do |i| %>
+line <%=i%>
+<% end %>
+end line
+<%= @constants['monkey'] %>
+
+
+.
+
+<%= Machine::find(@constants['machine_id']).hostname %>

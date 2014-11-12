@@ -1,0 +1,92 @@
+<<DOC
+: '
+: NAME: scratchdirs
+: SYNOPSIS: Create user scratch dirs on local machine
+: VERSION: 1.0.0
+: '
+DOC
+#!/bin/bash
+################################################################################
+# (c) Copyright 2007-2012 Alces Software Ltd & Stephen F Norledge.             #
+#                                                                              #
+# Alces HPC Software Toolkit                                                   #
+#                                                                              #
+# This file/package is part of Symphony                                        #
+#                                                                              #
+# Symphony is free software: you can redistribute it and/or modify it under    #
+# the terms of the GNU Affero General Public License as published by the Free  #
+# Software Foundation, either version 3 of the License, or (at your option)    #
+# any later version.                                                           #
+#                                                                              #
+# Symphony is distributed in the hope that it will be useful, but WITHOUT      #
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or        #
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License #
+# for more details.                                                            #
+#                                                                              #
+# You should have received a copy of the GNU Affero General Public License     #
+# along with Symphony.  If not, see <http://www.gnu.org/licenses/>.            #
+#                                                                              #
+# For more information on the Symphony Toolkit, please visit:                  #
+# http://www.alces-software.org/symphony                                       #
+#                                                                              #
+################################################################################
+
+# Execute as ruby script if we're evaluating under bash
+if [ "" ]; then 0; else eval 'alces_RUBY_EXEC "$@" || exit 1'; fi; end
+
+if `echo $EUID`.chomp != '0'
+  STDERR.puts "Must be run as root"
+  exit 1
+end
+
+
+ENV['BUNDLE_GEMFILE'] ||= "#{ENV['alces_BASE']}/lib/stack/lib/ruby/Gemfile"
+$: << "#{ENV['alces_BASE']}/lib/stack/lib/ruby/lib"
+
+class User
+  def self::parse_passwd(line)
+    parts=line.split(':')
+    User::new(parts[2],parts[3],parts[0])
+  end
+  def initialize(uid,gid,name,options={})
+    @uid=uid.to_i
+    @name=name
+    @gid=gid.to_i
+    @options=options ||= {}
+  end
+  attr_reader :uid,:gid
+  attr_reader :name
+end
+class PasswdReader
+  PASSWD_FILE="/etc/passwd"
+  def initialize
+    @users=[]
+    parse
+  end
+
+  def users(min_uid=0,max_uid=999999999)
+    @users.select {|u| (u.uid > min_uid) && (u.uid < max_uid)}
+  end
+
+  private
+  def passwd
+    File::readlines(PASSWD_FILE)
+  end
+  def getent
+    `getent passwd`.split("\n")
+  end
+  def parse
+    lines=getent
+    lines.each do |line|
+      @users << User::parse_passwd(line)
+    end
+  end
+end
+
+LOCALSCRATCHDIR="/tmp/users"
+PasswdReader::new.users(500,500000).each do |user|
+  dir="#{File::join(LOCALSCRATCHDIR,user.name)}"
+  cmd="mkdir -p #{dir} && chown #{user.uid}:#{user.gid} #{dir}"
+  print("Creating #{dir}: "); STDOUT.flush
+  system(cmd) ? puts("OK") : puts("FAIL")
+end

@@ -1,0 +1,39 @@
+$: << File.expand_path("../vendor/alces/lib", __FILE__)
+require 'alces/ext/bundler/dsl_extensions'
+extend Alces::Ext::Bundler::DslExtensions
+
+source 'http://rubygems.org'
+source 'http://gems.alces-software.com'
+
+group :dhcp do
+  gem 'pcap', '0.7.7'
+  gem 'net-dhcp'
+end
+
+group :cirrus do
+  gem 'cirrus-dao', '>= 0.2.0', :local => true
+end
+
+group :sma do
+  gem 'sma-dao', :local => true
+end
+
+group :sphere do
+  gem 'sphere_client', :local => true
+end
+
+group :templating do
+  gem 'alces-renderer_client', '>= 0.1.0', :local => true
+  gem 'cirrus-dao', '>= 0.2.0', :local => true
+end
+
+group :booter do
+  gem 'ruby-ip'
+end
+
+group :portal do
+  gem 'rest-client'
+end
+
+gem 'alces-tools', '>= 0.10.0', :local => true
+gem 'highline'

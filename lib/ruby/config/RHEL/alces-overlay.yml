@@ -1,0 +1,9 @@
+---
+enable_repo_execute: true
+repo_paths:
+- /var/lib/alces/nodeware/overlays
+profiles:
+- /var/lib/alces/nodeware/overlays/profiles/headnode.yml
+- /var/lib/alces/nodeware/overlays/profiles/compute.yml
+- /var/lib/alces/nodeware/overlays/profiles/login.yml
+- /var/lib/alces/nodeware/overlays/profiles/storage.yml

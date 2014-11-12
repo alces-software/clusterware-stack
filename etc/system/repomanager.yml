@@ -1,0 +1,3 @@
+local_repo_path: /var/lib/alces/nodeware/depot/
+local_repo_url: http://service/alces/repo/
+yum_config_path: /var/lib/alces/nodeware/etc/yum.repos.d/

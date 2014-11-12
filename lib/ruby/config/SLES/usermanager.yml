@@ -1,0 +1,5 @@
+default_backend: :NIS
+ldap_domain: dc=cluster
+ldap_manager: cn=root,dc=cluster
+default_shell: /bin/bash
+default_home: /users

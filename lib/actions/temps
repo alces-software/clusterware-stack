@@ -1,0 +1,248 @@
+<<DOC
+: '
+: NAME: temps
+: SYNOPSIS: Perform IPMI Temperature commands
+: VERSION: 4.1.0
+: '
+DOC
+################################################################################
+# (c) Copyright 2007-2011 Alces Software Ltd & Stephen F Norledge.             #
+#                                                                              #
+# Alces HPC Software Toolkit                                                   #
+#                                                                              #
+# This file/package is part of Symphony                                        #
+#                                                                              #
+# Symphony is free software: you can redistribute it and/or modify it under    #
+# the terms of the GNU Affero General Public License as published by the Free  #
+# Software Foundation, either version 3 of the License, or (at your option)    #
+# any later version.                                                           #
+#                                                                              #
+# Symphony is distributed in the hope that it will be useful, but WITHOUT      #
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or        #
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License #
+# for more details.                                                            #
+#                                                                              #
+# You should have received a copy of the GNU Affero General Public License     #
+# along with Symphony.  If not, see <http://www.gnu.org/licenses/>.            #
+#                                                                              #
+# For more information on the Symphony Toolkit, please visit:                  #
+# http://www.alces-software.org/symphony                                       #
+#                                                                              #
+################################################################################
+
+ALCES_ROOT=/var/lib/alces/nodeware
+ALCES_ETC=$ALCES_ROOT/etc
+LOCAL_BMC_CONFIG=/etc/sysconfig/network-scripts/ifcfg-bmc
+SHARED_BMC_CONFIG=$ALCES_ETC/ifcfg-bmc
+ALCES_IPMI_CONFIG=$ALCES_ETC/ipmi.conf
+
+if [ ! -d "$ALCES_ETC" ]; then
+  echo "$0: configuration directory not available"
+  echo ""
+  echo "The configuration directory (${ALCES_ETC}) is not available - please ensure that ${ALCES_ROOT} is mounted.  If your cluster is configured with high availability services, you should check that these have been started." | fold -s -w70
+  echo ""
+  echo "If problems persist, please contact Alces Customer Support at <support@alces-software.com>." | fold -s -w70
+  exit 1
+fi
+
+if [ -f $ALCES_IPMI_CONFIG ]; then
+  . $ALCES_IPMI_CONFIG
+fi
+
+if [ -f $SHARED_BMC_CONFIG ]; then
+  . $SHARED_BMC_CONFIG
+fi
+
+if [ -f $LOCAL_BMC_CONFIG ]; then
+  . $LOCAL_BMC_CONFIG
+fi
+
+if [ -z $USERNAME ]; then
+ USERNAME=admin
+fi
+if [ -z $PASSWORD ]; then
+ PASSWORD=password
+fi
+if [ -z $IPMI_HEAD ]; then
+ IPMI_HEAD=
+fi
+if [ -z $IPMI_TAIL ]; then
+ IPMI_TAIL=sp
+fi
+if [ -z $STEP_INTERVAL ]; then
+ STEP_INTERVAL=0.5
+fi
+if [ -z $SPOOF_TAIL ]; then
+ SPOOF_TAIL=""
+fi
+
+. ${ALCES_ROOT}/opt/symphony/lib/stack/lib/node_gather
+
+export IPMI_PASSWORD="${PASSWORD}"
+CACHE_DIR=/var/cache/alces-ipmi/
+
+usage()
+{
+  echo "(c) 2008-2011 Alces Software Ltd & Stephen F Norledge"
+  echo "Power command, perform ipmi remote power commands on single or multiple machines" 
+  echo "usage: alces temps [-g] <name> <command>"
+  echo "  options:"
+  echo "    -g specify genders node group <nodename>"
+  echo "    -b broadcast results for each node via ganglia"
+  echo "    -d deamon mode seconds between runs <seconds>"
+  echo
+}
+
+BROADCAST=0
+DAEMON=0
+
+while ! [ -z "${*}" ]; do
+
+  case "${1}" in
+    '-g')
+      NODEGROUP="${2}"
+      shift 1
+      ;;
+    '-b')
+      BROADCAST=1
+      ;;
+    '-d')
+      DAEMON=1
+      DAEMON_SLEEP="${2}"
+      shift 1
+      ;;
+    *)
+      NODE="${1}"
+      ;;
+  esac
+  shift 1
+done
+
+if ! [ -z $NODEGROUP ] && ! [ -z $NODE ]; then
+  echo "Invalid usage" >&2
+  usage
+  exit 1
+fi
+
+if ! [ -z $NODEGROUP ]; then
+  NODES=`nodegather ${NODEGROUP}`
+else
+  NODES=$NODE
+fi
+
+if [ -z "$NODES" ]; then
+  echo "Please specify at least one node" >&2
+  exit 1
+fi
+
+if ! [ -f $CACHE_DIR ]; then
+  if ! ( mkdir -p $CACHE_DIR &>/dev/null ); then
+    echo "Failed to create cache dir" >&2
+    exit 1
+  fi
+fi
+
+if [ $BROADCAST -eq 1 ]; then
+    GMETRIC=/usr/bin/gmetric
+
+    if [ ! -x "$GMETRIC" || "$GANGLIA_MODULE" ]; then
+	if [ -z "$HOME" ]; then
+	    export HOME=/root
+	fi
+	
+	if [ -f /etc/profile.d/modules.sh ]; then
+	    . /etc/profile.d/modules.sh
+	else
+	    echo "Unable to locate environment modules initialization script."
+	    exit 1
+	fi
+	
+	if [ -d /opt/gridware/modulefiles ]; then
+	    if [ -z "$GANGLIA_MODULE" ]; then
+		GANGLIA_MODULE=services/ganglia
+	    fi
+	    module purge
+	    module use /opt/gridware/modulefiles
+	    module load $GANGLIA_MODULE
+	fi
+	
+	GMETRIC=$GANGLIADIR/bin/gmetric
+    fi
+    
+    if [ ! -x "$GMETRIC" ]; then
+	echo "Unable to locate gmetric binary: $GMETRIC"
+	exit 1
+    fi
+fi
+
+while true; do
+for NODE in $NODES; do
+
+  if ! ( ping -W 1 -c 1 ${NODE}${SPOOF_TAIL} &>/dev/null ); then
+    echo "Node '${NODE}' appears not to be up, skipping" >&2
+    continue
+  fi
+
+  NODEIP=`gethostip -d ${NODE}${SPOOF_TAIL} 2> /dev/null`
+  FULLNAME=`gethostip -n ${NODE}${SPOOF_TAIL} 2> /dev/null`
+
+  if [ -z $NODEIP ] || [ -z $FULLNAME ]; then
+    echo "Unable to resolve node date" >&2
+    continue
+  fi
+
+  SDRCACHE=${CACHE_DIR}/${NODE}${IPMI_TAIL}.sdr
+
+  if ! [ -f ${SDRCACHE} ]; then
+    cmd="ipmitool -H ${IPMI_HEAD}${NODE}${IPMI_TAIL} -I lanplus -U${USERNAME} -E sdr dump ${SDRCACHE}" 
+    echo -n "Creating sdr cache for ${NODE}.."
+    if ( $cmd > /dev/null 2>&1 ); then
+      echo "OK"
+    else
+      echo "FAIL"
+    fi
+  fi
+  
+  if [ NO_SLEEP != 1 ]; then
+    sleep $STEP_INTERVAL
+  fi
+  NO_SLEEP=0
+  
+  cmd="ipmitool -H ${IPMI_HEAD}${NODE}${IPMI_TAIL} -U${USERNAME} -E -S ${SDRCACHE} sdr type Temperature"
+  echo -n "Reading temps on ${NODE}.."
+  if ( $cmd > /tmp/alcesipmi.$$ ); then
+    echo "OK"
+  else
+    echo "FAILED"
+  fi
+  
+  cat /tmp/alcesipmi.$$ | grep -e " degrees C" | while read line; do
+    name=`echo $line |  cut -d '|' -f 1 | sed 's/[ \t]*//g'`
+    value=`echo $line | cut -d '|' -f 5`
+    cleanvalue=`echo $value | grep -o '^[0-9]*'`
+    if ! [ -z $cleanvalue ]; then 
+      if [ $BROADCAST -eq 1 ]; then
+        cmd=$GMETRIC' --name '$name' --value '$cleanvalue' --type int16 --unit degC --spoof '${NODEIP}:${FULLNAME}
+        echo -n "  Sending data for '${name}'.."
+        if ( $cmd ); then
+          echo "OK"
+        else
+          echo "FAIL"
+        fi
+      else
+        echo "-${name}: ${cleanvalue}"
+      fi
+    fi
+  done
+ 
+  rm -f /tmp/alcesipmi.$$
+  
+done
+
+if [ $DAEMON -eq 1 ]; then
+  sleep $DAEMON_SLEEP
+else
+  break
+fi
+done
+

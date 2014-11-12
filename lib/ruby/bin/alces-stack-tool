@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+################################################################################
+# (c) Copyright 2007-2011 Alces Software Ltd & Stephen F Norledge.             #
+#                                                                              #
+# Alces HPC Software Toolkit                                                   #
+#                                                                              #
+# This file/package is part of Symphony                                        #
+#                                                                              #
+# Symphony is free software: you can redistribute it and/or modify it under    #
+# the terms of the GNU Affero General Public License as published by the Free  #
+# Software Foundation, either version 3 of the License, or (at your option)    #
+# any later version.                                                           #
+#                                                                              #
+# Symphony is distributed in the hope that it will be useful, but WITHOUT      #
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or        #
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License #
+# for more details.                                                            #
+#                                                                              #
+# You should have received a copy of the GNU Affero General Public License     # 
+# along with Symphony.  If not, see <http://www.gnu.org/licenses/>.            #
+#                                                                              #
+# For more information on the Symphony Toolkit, please visit:                  #
+# http://www.alces-software.org/symphony                                       #
+#                                                                              #
+################################################################################
+cmd=`basename $0`
+
+if [ -f /etc/profile.d/modules.sh ]; then
+  . /etc/profile.d/modules.sh
+fi
+
+if type -t module &>/dev/null; then
+  module purge
+  module use /var/lib/alces/nodeware/modulefiles
+  module load alces/apps/tools
+else
+  echo "$cmd: WARNING! Could not find environment modules"
+fi
+
+if [ -z "$ALCES_STACK_TOOLS_BIN" ]; then
+  echo "$cmd: ALCES_STACK_TOOLS_BIN not set"
+  exit 1
+fi
+
+if [ "$cmd" == "alces-stack-tool" ]; then
+  if [ -z "$1" ]; then
+    echo "$cmd: Usage: $cmd <tool name> [OPTIONS]"
+    exit 1
+  fi
+  cmd=$1
+  shift
+fi
+
+if [ -x $ALCES_STACK_TOOLS_BIN/$cmd ]; then
+  exec $ALCES_STACK_TOOLS_BIN/$cmd "$@"
+else
+  echo "$cmd: No such Alces HPC Stack tool could be found"
+  exit 1
+fi

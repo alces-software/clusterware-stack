@@ -1,0 +1,53 @@
+diff --git a/etc/init/rcS.conf b/etc/init/rcS.conf
+index 32113a8..2230439 100644
+--- etc/init/rcS.conf.orig
++++ etc/init/rcS.conf
+@@ -21,6 +21,8 @@ pre-start script
+ 			;;
+ 		esac
+ 	done
++	# oneSIS hook to setup ramdisk environment
++	/sbin/rc.preinit --run --exec "/bin/echo oneSIS: preinit complete"
+ end script
+ exec /etc/rc.d/rc.sysinit
+ post-stop script
+diff --git a/etc/rc.d/rc.sysinit b/etc/rc.d/rc.sysinit
+index 1dc58cd..4906176 100755
+--- etc/rc.d/rc.sysinit.orig
++++ etc/rc.d/rc.sysinit
+@@ -252,7 +252,13 @@ if strstr "$cmdline" noreadonlyroot ; then
+ 	READONLY=no
+ fi
+
+-if [ "$READONLY" = "yes" -o "$TEMPORARY_STATE" = "yes" ]; then
++READONLY_BIND_MOUNTS=
++if [ ! "$ONESIS" = yes ]; then
++	if [ "$READONLY" = "yes" -o "$TEMPORARY_STATE" = "yes" ]; then
++		READONLY_BIND_MOUNTS=yes
++	fi
++fi
++if [ "$READONLY_BIND_MOUNTS" = "yes" ]; then
+
+ 	mount_empty() {
+ 		if [ -e "$1" ]; then
+@@ -583,7 +589,7 @@ _NEED_XFILES=
+
+ # Clean up /var.
+ rm -rf /var/lock/cvs/* /var/run/screen/*
+-find /var/lock /var/run ! -type d -exec rm -f {} \;
++find /var/lock/ /var/run/ ! -type d -exec rm -f {} \;
+ rm -f /var/lib/rpm/__db* &> /dev/null
+ rm -f /var/gdm/.gdmfifo &> /dev/null
+
+--- etc/sysconfig/readonly-root.orig	2011-08-16 11:10:34.000000000 -0700
++++ etc/sysconfig/readonly-root	2011-08-16 11:10:53.000000000 -0700
+@@ -1,5 +1,8 @@
+ # Set to 'yes' to mount the system filesystems read-only.
+-READONLY=no
++READONLY=yes
++# Set to 'yes' to disable bind mounts on writable files that conflict
++# with the oneSIS way.
++ONESIS=yes
+ # Set to 'yes' to mount various temporary state as either tmpfs
+ # or on the block device labelled RW_LABEL. Implied by READONLY
+ TEMPORARY_STATE=no

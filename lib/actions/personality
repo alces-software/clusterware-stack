@@ -1,0 +1,162 @@
+<<DOC
+: '
+: NAME: personality
+: SYNOPSIS: Package personality packs
+: VERSION: 5.0.0
+: '
+DOC
+#!/bin/bash
+################################################################################
+# (c) Copyright 2007-2013 Alces Software Ltd & Stephen F Norledge.             #
+#                                                                              #
+# Alces HPC Software Toolkit                                                   #
+#                                                                              #
+# This file/package is part of Symphony                                        #
+#                                                                              #
+# Symphony is free software: you can redistribute it and/or modify it under    #
+# the terms of the GNU Affero General Public License as published by the Free  #
+# Software Foundation, either version 3 of the License, or (at your option)    #
+# any later version.                                                           #
+#                                                                              #
+# Symphony is distributed in the hope that it will be useful, but WITHOUT      #
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or        #
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License #
+# for more details.                                                            #
+#                                                                              #
+# You should have received a copy of the GNU Affero General Public License     #
+# along with Symphony.  If not, see <http://www.gnu.org/licenses/>.            #
+#                                                                              #
+# For more information on the Symphony Toolkit, please visit:                  #
+# http://www.alces-software.org/symphony                                       #
+#                                                                              #
+################################################################################
+failure() {
+  echo $1 >&2
+  exit 1
+}
+
+if [[ $EUID -ne 0 ]]; then
+   failure "This script must be run as root"
+fi
+
+CLIENT=$1
+
+CONFIG=/var/lib/alces/nodeware/etc/personality
+
+if ! [ -f $CONFIG ]; then
+  echo "Can't find config file: ${CONFIG}" >&2
+fi
+source $CONFIG
+
+test -z $CLIENT && failure "Please specify client hostname"
+
+TMPDIR="/tmp/config.$$"
+unset GEM_HOME GEM_PATH
+CACERT=`puppet master --configprint cacert 2>/dev/null`
+PUPPETCERTS=`puppet master --configprint certdir 2>/dev/null`
+PUPPETKEYS=`puppet master --configprint privatekeydir 2>/dev/null`
+LOG=/var/log/alces/tools/alces-personality.log
+if ! [ -d `dirname $LOG` ]; then
+  mkdir -p $LOG
+fi
+VPNDIR=/etc/openvpn/
+VPNCLIENTCONFIG=/etc/openvpn/secureclient.example
+VPNCERTS=$VPNDIR/easy-rsa/
+VPNCCD=$VPNDIR/ccd/
+
+TARGETDIR=/var/lib/alces/nodeware/etc/personalities/
+test -f $TARGETDIR || mkdir -p $TARGETDIR
+TARGETPACK="${TARGETDIR}/${CLIENT}.tgz"
+
+test -f $CACERT || failure "Can't find CA at ${CACERT}"
+CACERTTARGET="${TMPDIR}/var/lib/puppet/ssl/certs/ca.pem"
+
+if [ ${GENPUPPETCERTS} -eq 1 ]; then
+  CLIENTCERT="${PUPPETCERTS}/${CLIENT}.pem"
+  CLIENTKEY="${PUPPETKEYS}/${CLIENT}.pem"
+
+  if [ ! -f $CLIENTKEY ]; then
+    echo -n "Generating new puppet certificates for host:${CLIENT}.."
+    (puppet cert generate $CLIENT &>>$LOG) && (echo 'OK') || (echo 'FAIL')
+  else
+    echo "Skipping puppet certificate generation as they already appear to exist.."
+  fi
+
+  test -f $CLIENTCERT || failure "Can't find cert at ${CLIENTCERT}"
+  test -f $CLIENTKEY || failure "Can't find key ay ${CLIENTKEY}"
+  CLIENTCERTTARGET="${TMPDIR}/var/lib/puppet/ssl/certs/${CLIENT}.pem"
+  CLIENTKEYTARGET="${TMPDIR}/var/lib/puppet/ssl/private_keys/${CLIENT}.pem"
+
+fi
+PUPPETTEMPLATE="/var/lib/alces/nodeware/etc/puppet/config/puppet-slave.conf"
+test -f $PUPPETTEMPLATE || failure  "Can't find config template @ ${PUPPETTEMPLATE}"
+
+PUPPETTARGET="${TMPDIR}/etc/puppet/puppet.conf"
+
+if [ ${GENVPNCERTS} -eq 1 ]; then
+  #VPN
+  if [ -d /etc/openvpn ]; then
+    VPNCLIENTCERT=$VPNCERTS/keys/${CLIENT}.crt
+    VPNCLIENTKEY=$VPNCERTS/keys/${CLIENT}.key
+    VPNCA=$VPNCERTS/keys/ca.crt
+    #Don't try and regenerate existing certs - breaks existing ones
+    if [ ! -f $VPNCLIENTKEY ]; then
+      echo -n "Generating VPN certs for host:${CLIENT}.."
+      ((cd $VPNCERTS && source ./vars && KEY_CN=$CLIENT ./pkitool $CLIENT) &>>$LOG) && (echo 'OK') || (echo 'FAIL')
+    else
+      echo "Skipping VPN cert generation as they appear to already exist.."
+    fi
+    test -f $VPNCLIENTCERT || failure "Can't find VPN cert at ${VPNCLIENTCERT}"
+    test -f $VPNCLIENTKEY || failure "Can't find VPN key at ${VPNCLIENTKEY}"
+    test -f $VPNCA || failure "Can't find VPN CA at ${VPNCA}"
+    echo "Please run -> echo ifconfig-push ${CLIENT}.sec 255.255.0.0 > /etc/openvpn/ccd/${CLIENT}"
+  fi
+fi
+
+stage() {
+  (
+    mkdir -p `dirname $PUPPETTARGET`
+    sed -e "s/%MASTER%/${MASTER}/g" -e "s/%HOSTNAME%/${CLIENT}/g" $PUPPETTEMPLATE > $PUPPETTARGET
+    if [ ${GENPUPPETCERTS} -eq 1 ]; then
+      mkdir -p `dirname $CLIENTCERTTARGET`
+      cp -v $CLIENTCERT $CLIENTCERTTARGET
+      mkdir -p `dirname $CLIENTKEYTARGET`
+      cp -v $CLIENTKEY $CLIENTKEYTARGET
+      mkdir -p `dirname $CACERTTARGET`
+      cp -v $CACERT $CACERTTARGET
+    fi
+    if [ ${GENVPNCERTS} -eq 1 ]; then
+      if [ -d /etc/openvpn ]; then
+        #OpenVPN
+        mkdir -p ${TMPDIR}/etc/openvpn/
+        cp -v $VPNCLIENTCONFIG ${TMPDIR}/etc/openvpn/client.conf
+        cp -v $VPNCA ${TMPDIR}/etc/openvpn/ca.crt
+        cp -v $VPNCLIENTCERT ${TMPDIR}/etc/openvpn/client.crt
+        cp -v $VPNCLIENTKEY ${TMPDIR}/etc/openvpn/client.key
+        chmod -R 600 ${TMPDIR}/etc/openvpn
+      fi
+    fi
+  ) &>>$LOG
+}
+
+pack() {
+  (cd $TMPDIR && tar -zcvf $TARGETPACK * ) &>>$LOG
+}
+
+(test -d $TMPDIR || mkdir -p $TMPDIR) &>>$LOG
+
+echo -n "Staging.."
+(stage) && echo "OK" || echo "FAIL"
+
+if [ ${GENPUPPETCERTS} -eq 1 ]; then
+  for file in $PUPPETTARGET $CLIENTCERTTARGET $CLIENTKEYTARGET $CACERTTARGET; do
+    test -f $file || failure "Failed to generate pack file: $file"
+  done
+fi
+
+echo -n "Packing.."
+(pack) && echo "OK" || echo "FAIL"
+
+rm -rfv $TMPDIR &>/dev/null
+(test -f $TARGETPACK && (echo "Pack created - ${TARGETPACK}"; true) || (echo "Pack creation failed"; false)) && exit 0 || exit 1
+

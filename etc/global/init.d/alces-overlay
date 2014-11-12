@@ -1,0 +1,149 @@
+#!/bin/bash
+################################################################################
+# (c) Copyright 2007-2012 Alces Software Ltd & Stephen F Norledge.             #
+#                                                                              #
+# HPC Cluster Toolkit                                                          #
+#                                                                              #
+# This file/package is part of the HPC Cluster Toolkit                         #
+#                                                                              #
+# This is free software: you can redistribute it and/or modify it under        #
+# the terms of the GNU Affero General Public License as published by the Free  #
+# Software Foundation, either version 3 of the License, or (at your option)    #
+# any later version.                                                           #
+#                                                                              #
+# This file is distributed in the hope that it will be useful, but WITHOUT     #
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or        #
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License #
+# for more details.                                                            #
+#                                                                              #
+# You should have received a copy of the GNU Affero General Public License     #
+# along with this product.  If not, see <http://www.gnu.org/licenses/>.        #
+#                                                                              #
+# For more information on Alces Software, please visit:                        #
+# http://www.alces-software.org/                                               #
+#                                                                              #
+################################################################################
+# chkconfig: 2345 99 1
+# alces-overlay: Run overlay at boot
+# description: Runs Alces overlay procedures at boot time
+#
+. /etc/rc.d/init.d/functions
+
+PID_FILE=/var/run/crmmon.pid
+LOG=/var/log/alces/alces-overlay-init.log
+
+export ALCES_HOME=/var/lib/alces/nodeware/
+export alces_PATH=$ALCES_HOME
+export alces_MODE=system
+if [ -z $USER ]; then
+  export USER=root
+fi
+if [ -z $HOME ]; then
+  export HOME=/root
+fi
+
+OLY_PROFILES="%PROFILE%"
+OLY_OPTIONS=""
+OLY_METHOD="%METHOD%"
+OLY_SERVER="%SERVER%"
+
+mkdir -p `dirname $LOG` &>/dev/null
+
+overlay_check()
+{
+  echo "Preparing for local install"
+  if ! [ -d $ALCES_OVERLAYS ]; then
+    echo "It appears overlays are not accessible!"
+    exit 1
+  fi
+}
+
+start_local()
+{ 
+  for a in "/var/lib/alces/nodeware/etc/symphony/plugins.d"/*.sh; do
+    source $a
+  done  
+  overlay_check
+}
+
+stop_local()
+{
+  echo
+}
+
+start_nfs()
+{
+  mkdir -p /var/lib/alces/nodeware &>>$LOG
+  mount -t nfs $OLY_SERVER:/var/lib/alces/nodeware /var/lib/alces/nodeware &>>$LOG
+  for a in "/var/lib/alces/nodeware/etc/symphony/plugins.d"/*.sh; do
+    source $a
+  done
+  overlay_check
+}
+
+stop_nfs()
+{
+  umount /var/lib/alces/nodeware &>>$LOG
+}
+
+start()
+{
+  case "$OLY_METHOD" in
+    NFS)
+      start_nfs
+    ;;
+    *)
+      start_local
+    ;;
+  esac
+    
+  echo Applying Alces Overlays:
+  echo "******** `date` ********" >> $LOG
+  for profile in $OLY_PROFILES; do
+    echo -n "  Applying $profile:"
+    alces overlay -c apply --profile $profile $OLY_OPTIONS >> $LOG 2>&1
+    success; echo
+  done
+  RETVAL=0
+
+  case "$OLY_METHOD" in
+    NFS)
+      stop_nfs
+    ;;
+    *)
+      stop_local
+    ;;
+  esac
+}
+
+stop()
+{
+  echo -n "Stopping Alces Overlays:"
+  success
+  RETVAL=0
+  echo
+}
+
+running()
+{
+  false
+}
+case "$1" in
+  start)
+    running && echo Already started! || start
+  ;;
+  stop)
+    running && stop || echo Not yet started!
+  ;;
+  restart)
+    stop
+    start
+  ;;
+  status)
+    running && echo "RUNNING" || (echo "NOT STARTED"; exit 3)
+  ;;
+  *)
+    echo "Usage: $0 {start|stop|restart|status}"
+esac 
+
+exit $RETVAL

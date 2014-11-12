@@ -1,0 +1,4 @@
+---
+enable_repo_execute: true
+repo_paths:
+- /var/lib/alces/nodeware/overlays
