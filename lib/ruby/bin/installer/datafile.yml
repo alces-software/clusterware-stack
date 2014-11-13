@@ -76,7 +76,7 @@
     - :SLES
     - :ANY
 :overlay_repo_path:
-  :EL6: '/var/lib/alces/nodeware/var/lib/stack/repos/base/symphony-overlays/el/6'
+  :EL6: '/opt/clusterware/var/lib/stack/repos/base/symphony-overlays/el/6'
 :package_manager_config_filename:
   :SLES: '/etc/zypp/repos.d/Alces.repo'
   :EL: '/etc/yum.repos.d/Alces.repo'
@@ -96,7 +96,7 @@
 #    priority=5
 #    enabled=1
 #    gpgcheck=1
-#    gpgkey=file:///var/lib/alces/nodeware/etc/pki/rpm-gpg/RPM-GPG-KEY-alces-software
+#    gpgkey=file:///opt/clusterware/etc/pki/rpm-gpg/RPM-GPG-KEY-alces-software
 #  :SL6: |
 #    [alces-hpc]
 #    name=Alces HPC Core
@@ -104,7 +104,7 @@
 #    priority=5
 #    enabled=1
 #    gpgcheck=1
-#    gpgkey=file:///var/lib/alces/nodeware/etc/pki/rpm-gpg/RPM-GPG-KEY-alces-software
+#    gpgkey=file:///opt/clusterware/etc/pki/rpm-gpg/RPM-GPG-KEY-alces-software
   :RHEL6: |
     [base]
     name=RHEL6 Base
@@ -130,7 +130,7 @@
 #    priority=5
 #    enabled=1
 #    gpgcheck=1
-#    gpgkey=file:///var/lib/alces/nodeware/etc/pki/rpm-gpg/RPM-GPG-KEY-alces-software
+#    gpgkey=file:///opt/clusterware/etc/pki/rpm-gpg/RPM-GPG-KEY-alces-software
 #  :SLES11_1: |
 #    [alces-hpc]
 #    name=Alces HPC Core
@@ -138,7 +138,7 @@
 #    priority=5
 #    enabled=1
 #    gpgcheck=1
-#    gpgkey=file:///var/lib/alces/nodeware/etc/pki/rpm-gpg/RPM-GPG-KEY-alces-software
+#    gpgkey=file:///opt/clusterware/etc/pki/rpm-gpg/RPM-GPG-KEY-alces-software
 #:rpm_gpg_key: |
 #  -----BEGIN PGP PUBLIC KEY BLOCK-----
 #  Version: GnuPG v1.4.5 (GNU/Linux)
@@ -166,4 +166,4 @@
 #  =n6FX
 #  -----END PGP PUBLIC KEY BLOCK-----
 #
-#:rpm_gpg_key_filename: /var/lib/alces/nodeware/etc/pki/rpm-gpg/RPM-GPG-KEY-alces-software
+#:rpm_gpg_key_filename: /opt/clusterware/etc/pki/rpm-gpg/RPM-GPG-KEY-alces-software

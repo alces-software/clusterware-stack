@@ -40,8 +40,8 @@ end
 if res.to_s.upcase == "Y"
   begin
     print "Creating required directories.."
-    FileUtils::mkdir_p '/var/lib/alces/nodeware/overlays'
-    system "chmod 700 /var/lib/alces/nodeware/overlays"
+    FileUtils::mkdir_p '/opt/clusterware/overlays'
+    system "chmod 700 /opt/clusterware/overlays"
     puts "OK"
     print "Appending main configuration files.."
     config=<<EOF
@@ -49,7 +49,7 @@ if res.to_s.upcase == "Y"
 -  classname: Alces::Overlay::RepoManager
    enable_repo_execute: true
    repo_paths:
-   - /var/lib/alces/nodeware/overlays/
+   - /opt/clusterware/overlays/
 
 EOF
     a=::File::open('/etc/opt/clusterware/clusterware.yml','a')

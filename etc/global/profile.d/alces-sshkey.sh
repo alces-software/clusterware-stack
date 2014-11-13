@@ -4,7 +4,7 @@
 ## Copyright (c) 2008-2013 Alces Software Ltd
 ##
 ################################################################################
-export alces_PATH=/var/lib/alces/nodeware
+export alces_PATH=/opt/clusterware
 
 export alces_MODE=system
 

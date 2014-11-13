@@ -70,7 +70,7 @@ repos:
   name: alces-hpc
   nicename: Alces HPC Core 4.1
   priority: 5
-  gpgkey: file:///var/lib/alces/nodeware/etc/pki/rpm-gpg/RPM-GPG-KEY-alces-software
+  gpgkey: file:///opt/clusterware/etc/pki/rpm-gpg/RPM-GPG-KEY-alces-software
 - !ruby/object:Alces::Stack::Repo::Repository
   baseurl: file:///media/repo/custom/
   enabled: true
@@ -107,4 +107,4 @@ repos:
   name: epel
   nicename: EPEL for EL6 x86_64
   priority: 50
-  gpgkey: file:///var/lib/alces/nodeware/etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-6
+  gpgkey: file:///opt/clusterware/etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-6

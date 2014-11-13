@@ -122,7 +122,7 @@ module Alces
 
     class Installer
       DATAFILE='datafile.yml'
-      ALCES_BASE='/var/lib/alces/nodeware'
+      ALCES_BASE='/opt/clusterware'
       LOG='/var/log/alces/alces-stack-installer.log'
       DOWNLOAD_URL="http://download.alces-software.com/db/"
       ALCES_REPO_TEMPLATES="#{ALCES_BASE}/etc/repotemplates"
@@ -153,7 +153,7 @@ module Alces
       private
 
       def do_symphony
-        if ::File::exists? '/var/lib/alces/nodeware/bin/alces'
+        if ::File::exists? '/opt/clusterware/bin/alces'
           return false unless question :YESNO, 'Reinstall symphony?', {:description=>"Alces symphony is already installed on this system, it can be reinstalled if required"}
         else
           question :YESNO, 'Install Symphony?', {:description=>"The Alces HPC Stack required installation of the symphony tool suite",:required=>true}
@@ -166,8 +166,8 @@ module Alces
           say("Installing Symphony..",{:type=>:MESSAGE,:indent=>2})
           raise "Symphony install failed" unless unwrapped_exec "curl http://download.alces-software.com/alces/bootstrap | /bin/bash "
           say("Installing Facilities..",{:type=>:MESSAGE,:indent=>2})
-          raise "Symphony install failed" unless unwrapped_exec "/bin/bash -l -c '/var/lib/alces/nodeware/bin/alces facility install packager'"
-          raise "Symphony install failed" unless unwrapped_exec "/bin/bash -l -c '/var/lib/alces/nodeware/bin/alces facility install stack'"
+          raise "Symphony install failed" unless unwrapped_exec "/bin/bash -l -c '/opt/clusterware/bin/alces facility install packager'"
+          raise "Symphony install failed" unless unwrapped_exec "/bin/bash -l -c '/opt/clusterware/bin/alces facility install stack'"
           say("Symphony install complete.",{:type=>:MESSAGE,:indent=>2})
         rescue StandardError=>e
           do_exit_by_failure "Unable to install symphony"
@@ -175,15 +175,15 @@ module Alces
       end
      
       def do_overlay_setup
-        if ::File::exists? '/var/lib/alces/nodeware/overlays/base'
+        if ::File::exists? '/opt/clusterware/overlays/base'
           return false unless question :YESNO, 'Delete existing overlays?', {:description=>'Existing overlays have been detected on this system, they can be recreated if required'}
-          say("Deleting existing overlays",{:type=>:PROCESS,:indent=>2}) { wrap_exec "rm -rvf /var/lib/alces/nodeware/overlays/*" } || raise("Failed to delete eixiting overlays")
+          say("Deleting existing overlays",{:type=>:PROCESS,:indent=>2}) { wrap_exec "rm -rvf /opt/clusterware/overlays/*" } || raise("Failed to delete eixiting overlays")
         else
-          question :YESNO, 'Setup Overlays?', {:description=>"Overlays are not yet configured on this system, they can be created in /var/lib/alces/nodeware/overlays automatically",:required=>true}
+          question :YESNO, 'Setup Overlays?', {:description=>"Overlays are not yet configured on this system, they can be created in /opt/clusterware/overlays automatically",:required=>true}
         end
         begin
           overlay_repo=distro_select('Overlay base path',data[:overlay_repo_path])
-          say("Installing base overlay",{:type=>:PROCESS,:indent=>2}) { wrap_exec "cp -pav #{::File::join(overlay_repo,'base')}/* /var/lib/alces/nodeware/overlays/."} || raise("base overlay install failed")
+          say("Installing base overlay",{:type=>:PROCESS,:indent=>2}) { wrap_exec "cp -pav #{::File::join(overlay_repo,'base')}/* /opt/clusterware/overlays/."} || raise("base overlay install failed")
           features=[:MYSQL,:'ALCES-PORTAL',:'ALCES-PRIME',:'ALCES-GRIDSCHEDULER']
           conflicts={:'ALCES-PORTAL'=>[:'ALCES-PRIME'],:'ALCES-PRIME'=>[:'ALCES-PORTAL']}
           installed=[]
@@ -197,14 +197,14 @@ module Alces
                   raise BadEntry
                 end
               }
-              say("Installing Feature:#{feature} overlay",{:type=>:PROCESS,:indent=>2}) { wrap_exec "cp -pav #{::File::join(overlay_repo,feature.to_s.downcase)}/* /var/lib/alces/nodeware/overlays/." } || raise("feature overlay install failed")
+              say("Installing Feature:#{feature} overlay",{:type=>:PROCESS,:indent=>2}) { wrap_exec "cp -pav #{::File::join(overlay_repo,feature.to_s.downcase)}/* /opt/clusterware/overlays/." } || raise("feature overlay install failed")
               installed << feature
               raise BadEntry 
             end
           rescue BadEntry
             retry
           end
-          say("Setting permissions on overlay dir",{:type=>:PROCESS,:indent=>2}) { wrap_exec "chown -R root:root /var/lib/alces/nodeware/overlays && chmod -R 600 /var/lib/alces/nodeware/overlays"} || raise("Setting overlay permissions failed")
+          say("Setting permissions on overlay dir",{:type=>:PROCESS,:indent=>2}) { wrap_exec "chown -R root:root /opt/clusterware/overlays && chmod -R 600 /opt/clusterware/overlays"} || raise("Setting overlay permissions failed")
         rescue StandardError=>e
           do_exit_by_failure "Overlay setup failed - #{e.message}"
         end
@@ -316,7 +316,7 @@ module Alces
         question :YESNO, 'Proceed with package install', {:description=>'Proceed with installation of packages from the Alces HPC Stack repositories.',:required=>true}
         begin
           distro_do 'Package Install', {
-            :EL=>lambda {raise 'Yum install failed' unless say("Installing YUM packages", {:type=>:PROCESS,:indent=>2}) { wrap_exec "yum --config /var/lib/alces/nodeware/etc/yum.conf -e0 -y groupinstall #{packages}" }}
+            :EL=>lambda {raise 'Yum install failed' unless say("Installing YUM packages", {:type=>:PROCESS,:indent=>2}) { wrap_exec "yum --config /opt/clusterware/etc/yum.conf -e0 -y groupinstall #{packages}" }}
           }
         rescue StandardError=>e
           do_exit_by_failure 'Unable to install required packages', e
@@ -327,7 +327,7 @@ module Alces
         question :YESNO, 'Proceed with overlay package install', {:description=>'Installed overlays have package dependencies, they can be installed now',:required=>true}
         begin
           distro_do 'Package Install', {
-            :EL=>lambda {raise 'Yum install failed' unless say("Installing Overlay packages", {:type=>:PROCESS,:indent=>2}) { wrap_exec "yum --config /var/lib/alces/nodeware/etc/yum.conf -e0 -y install `cat /var/lib/alces/nodeware/overlays/deps/*.yml | while read l; do echo -n \"$l \"; done`"}}
+            :EL=>lambda {raise 'Yum install failed' unless say("Installing Overlay packages", {:type=>:PROCESS,:indent=>2}) { wrap_exec "yum --config /opt/clusterware/etc/yum.conf -e0 -y install `cat /opt/clusterware/overlays/deps/*.yml | while read l; do echo -n \"$l \"; done`"}}
           }
         rescue StandardError=>e
           do_exit_by_failure 'Unable to install overlay packages', e
@@ -339,7 +339,7 @@ module Alces
         begin
           distro_do 'Package manager update', {
           :SLES=>lambda {raise 'Zypper update' unless say("Running ZYPPER update", {:type=>:PROCESS,:indent=>2}) { wrap_exec 'zypper -n update'}},
-          :EL=>lambda {raise 'Yum update' unless say("Running YUM update", {:type=>:PROCESS,:indent=>2}) { wrap_exec 'yum --config /var/lib/alces/nodeware/etc/yum.conf -e0 -y update'}}
+          :EL=>lambda {raise 'Yum update' unless say("Running YUM update", {:type=>:PROCESS,:indent=>2}) { wrap_exec 'yum --config /opt/clusterware/etc/yum.conf -e0 -y update'}}
           }
         rescue StandardError=>e
           do_exit_by_failure 'Unable to update system', e

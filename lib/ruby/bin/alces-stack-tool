@@ -31,7 +31,7 @@ fi
 
 if type -t module &>/dev/null; then
   module purge
-  module use /var/lib/alces/nodeware/modulefiles
+  module use /opt/clusterware/modulefiles
   module load alces/apps/tools
 else
   echo "$cmd: WARNING! Could not find environment modules"

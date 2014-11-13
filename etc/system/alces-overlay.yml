@@ -1,9 +1,9 @@
 ---
 enable_repo_execute: true
 repo_paths:
-- /var/lib/alces/nodeware/overlays
+- /opt/clusterware/overlays
 profiles:
-- /var/lib/alces/nodeware/etc/profiles/headnode.yml
-- /var/lib/alces/nodeware/etc/profiles/compute.yml
-- /var/lib/alces/nodeware/etc/profiles/login.yml
-- /var/lib/alces/nodeware/etc/profiles/storage.yml
+- /opt/clusterware/etc/profiles/headnode.yml
+- /opt/clusterware/etc/profiles/compute.yml
+- /opt/clusterware/etc/profiles/login.yml
+- /opt/clusterware/etc/profiles/storage.yml

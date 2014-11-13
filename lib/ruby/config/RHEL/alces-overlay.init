@@ -33,7 +33,7 @@ PID_FILE=/var/run/crmmon.pid
 LOG=/var/log/alces/alces-overlay-init.log
 
 #SETUP Alces tools
-ALCES_HOME=/var/lib/alces/nodeware/
+ALCES_HOME=/opt/clusterware/
 ALCES_RUBY=$ALCES_HOME/ruby/
 ALCES_TOOLS=$ALCES_HOME/tools/alces-stack-tools/
 PATH=$ALCES_HOME/bin/:$ALCES_HOME/sbin/:$ALCES_RUBY/bin:$ALCES_TOOLS/bin/:$ALCES_TOOLS/sbin/:$PATH

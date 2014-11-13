@@ -30,7 +30,7 @@ require 'ip'
 module Alces
   module Stack
     module Booter
-      PXEBASE='/var/lib/alces/nodeware/tftpboot/pxelinux.cfg'
+      PXEBASE='/opt/clusterware/tftpboot/pxelinux.cfg'
       class Booter
         include Alces::Tools::Logging
         include Alces::Tools::Execution
