@@ -35,5 +35,5 @@ group :portal do
   gem 'rest-client'
 end
 
-gem 'alces-tools', '>= 0.10.0', :local => true
+gem 'alces-tools', '>= 0.13.0', :local => true
 gem 'highline'
