@@ -4,7 +4,7 @@
 ## Copyright (c) 2008-2013 Alces Software Ltd
 ##
 ################################################################################
-export alces_PATH=/opt/clusterware
+export alces_PATH=/var/lib/alces/nodeware
 
 export alces_MODE=system
 
@@ -53,6 +53,18 @@ enable_key() {
   ) >> $LOG;
 }
 
+new_config() {
+  (
+    echo "CREATING CONFIG"
+    cat << EOF >> $SSHHOME/config
+Host *
+  IdentityFile $SSHHOME/$KEYNAME
+  StrictHostKeyChecking  no
+EOF
+    chmod 600 $SSHHOME/config
+  ) >> $LOG;
+}
+
 if ( check_user ); then
   if !( check_ssh_keys ); then
    echo -n "Generating SSH keypair:"
@@ -60,6 +72,7 @@ if ( check_user ); then
     echo 'OK'
     echo -n "Authorizing key:"
     enable_key && (echo 'OK') || (echo 'FAIL'; exit 1)
+    new_config
    else
     echo 'FAIL'
    fi
