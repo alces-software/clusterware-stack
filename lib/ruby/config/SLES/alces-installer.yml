@@ -1,4 +1,4 @@
-:installers: /var/lib/alces/nodeware/installer/metadata
-:sources: /var/lib/alces/nodeware/installer/src
+:installers: /opt/clusterware/installer/metadata
+:sources: /opt/clusterware/installer/src
 :buildroot: /usr/src/alces
 :gridware: /opt/gridware

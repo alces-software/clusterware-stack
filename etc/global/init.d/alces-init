@@ -32,7 +32,7 @@
 PID_FILE=/var/run/crmmon.pid
 LOG=/var/log/alces/alces-init.log
 
-export ALCES_HOME=/var/lib/alces/nodeware/
+export ALCES_HOME=/opt/clusterware/
 export alces_PATH=$ALCES_HOME
 if [ -z $USER ]; then
   export USER=root

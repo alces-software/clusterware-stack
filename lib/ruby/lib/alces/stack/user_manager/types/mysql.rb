@@ -30,7 +30,7 @@ module Alces
     module UserManager
       module Types
         class Mysql < Base
-          PASSWORD_FILE = '/var/lib/alces/nodeware/etc/personality/passwords.yml'
+          PASSWORD_FILE = '/opt/clusterware/etc/personality/passwords.yml'
 
           CREATE_USER_4_x = <<-SQL
             GRANT USAGE ON *.* TO '%<username>s'@'localhost' IDENTIFIED BY '%<password>s';

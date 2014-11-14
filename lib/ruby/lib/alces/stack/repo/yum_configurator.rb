@@ -33,10 +33,10 @@ module Alces
         
         if ::File::directory? '/etc/zypp/repos.d'
           MODE=:zypp
-          YUM_CONFIG_BASE="/var/lib/alces/nodeware/etc/zypp/"
+          YUM_CONFIG_BASE="/opt/clusterware/etc/zypp/"
         else
           MODE=:yum
-          YUM_CONFIG_BASE="/var/lib/alces/nodeware/etc/yum.repos.d/"
+          YUM_CONFIG_BASE="/opt/clusterware/etc/yum.repos.d/"
         end
        
         def initialize(yum_config_path=nil)

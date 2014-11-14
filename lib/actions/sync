@@ -31,7 +31,7 @@ DOC
 #                                                                              #
 ################################################################################
 
-ALCES_ROOT=/var/lib/alces/nodeware
+ALCES_ROOT=/opt/clusterware
 ALCES_ETC=$ALCES_ROOT/etc
 
 if [ ! -d "$ALCES_ETC" ]; then

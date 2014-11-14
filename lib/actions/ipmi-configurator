@@ -67,7 +67,7 @@ def usage
 end
 
 command=nil
-config_files=['/var/lib/alces/nodeware/etc/ipmi.conf','/var/lib/alces/nodeware/etc/ifcfg-bmc','/etc/sysconfig/network-scripts/ifcfg-bmc', '/etc/sysconfig/network/ifcfg-bmc']
+config_files=['/opt/clusterware/etc/ipmi.conf','/opt/clusterware/etc/ifcfg-bmc','/etc/sysconfig/network-scripts/ifcfg-bmc', '/etc/sysconfig/network/ifcfg-bmc']
 
 opts.each do |opt, arg|
   case opt

@@ -30,7 +30,7 @@ DOC
 #                                                                              #
 ################################################################################
 
-ALCES_ROOT=/var/lib/alces/nodeware
+ALCES_ROOT=/opt/clusterware
 ALCES_ETC=$ALCES_ROOT/etc
 LOCAL_BMC_CONFIG=/etc/sysconfig/network-scripts/ifcfg-bmc
 SHARED_BMC_CONFIG=$ALCES_ETC/ifcfg-bmc

@@ -41,7 +41,7 @@ fi
 
 CLIENT=$1
 
-CONFIG=/var/lib/alces/nodeware/etc/personality
+CONFIG=/opt/clusterware/etc/personality
 
 if ! [ -f $CONFIG ]; then
   echo "Can't find config file: ${CONFIG}" >&2
@@ -64,7 +64,7 @@ VPNCLIENTCONFIG=/etc/openvpn/secureclient.example
 VPNCERTS=$VPNDIR/easy-rsa/
 VPNCCD=$VPNDIR/ccd/
 
-TARGETDIR=/var/lib/alces/nodeware/etc/personalities/
+TARGETDIR=/opt/clusterware/etc/personalities/
 test -f $TARGETDIR || mkdir -p $TARGETDIR
 TARGETPACK="${TARGETDIR}/${CLIENT}.tgz"
 
@@ -88,7 +88,7 @@ if [ ${GENPUPPETCERTS} -eq 1 ]; then
   CLIENTKEYTARGET="${TMPDIR}/var/lib/puppet/ssl/private_keys/${CLIENT}.pem"
 
 fi
-PUPPETTEMPLATE="/var/lib/alces/nodeware/etc/puppet/config/puppet-slave.conf"
+PUPPETTEMPLATE="/opt/clusterware/etc/puppet/config/puppet-slave.conf"
 test -f $PUPPETTEMPLATE || failure  "Can't find config template @ ${PUPPETTEMPLATE}"
 
 PUPPETTARGET="${TMPDIR}/etc/puppet/puppet.conf"

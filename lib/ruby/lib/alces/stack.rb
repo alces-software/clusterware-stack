@@ -17,8 +17,8 @@ module Alces
       def default_config
         {
           'log_root' => '/var/log/alces/tools',
-          'ssl_root' => '/var/lib/alces/nodeware/etc/ssl',
-          'etc_root' => '/var/lib/alces/nodeware/etc'
+          'ssl_root' => '/opt/clusterware/etc/ssl',
+          'etc_root' => '/opt/clusterware/etc'
         }
       end
 

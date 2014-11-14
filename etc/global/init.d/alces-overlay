@@ -32,7 +32,7 @@
 PID_FILE=/var/run/crmmon.pid
 LOG=/var/log/alces/alces-overlay-init.log
 
-export ALCES_HOME=/var/lib/alces/nodeware/
+export ALCES_HOME=/opt/clusterware/
 export alces_PATH=$ALCES_HOME
 export alces_MODE=system
 if [ -z $USER ]; then
@@ -60,7 +60,7 @@ overlay_check()
 
 start_local()
 { 
-  for a in "/var/lib/alces/nodeware/etc/clusterware/plugins.d"/*.sh; do
+  for a in "/opt/clusterware/etc/clusterware/plugins.d"/*.sh; do
     source $a
   done  
   overlay_check
@@ -73,9 +73,9 @@ stop_local()
 
 start_nfs()
 {
-  mkdir -p /var/lib/alces/nodeware &>>$LOG
-  mount -t nfs $OLY_SERVER:/var/lib/alces/nodeware /var/lib/alces/nodeware &>>$LOG
-  for a in "/var/lib/alces/nodeware/etc/clusterware/plugins.d"/*.sh; do
+  mkdir -p /opt/clusterware &>>$LOG
+  mount -t nfs $OLY_SERVER:/opt/clusterware /opt/clusterware &>>$LOG
+  for a in "/opt/clusterware/etc/clusterware/plugins.d"/*.sh; do
     source $a
   done
   overlay_check
@@ -83,7 +83,7 @@ start_nfs()
 
 stop_nfs()
 {
-  umount /var/lib/alces/nodeware &>>$LOG
+  umount /opt/clusterware &>>$LOG
 }
 
 start()
