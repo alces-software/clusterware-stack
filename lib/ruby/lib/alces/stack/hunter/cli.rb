@@ -60,16 +60,10 @@ module Alces
                default: 0,
                required: true
 
-        option :profile,
-               'Specify cobbler profile',
-               '--profile', '-p',
-               default: 'SLAVE',
-               required: true
-
-        option :machine,
-               'Specify cobbler machine',
-               '--machine', '-m',
-               default: 'compute',
+        option :cobbler_interface,
+               'Specify cobbler interface',
+               '--cobblerinterface',
+               default: 'eth0',
                required: true
 
         def setup_signal_handler
@@ -88,8 +82,7 @@ module Alces
                      name: hostname,
                      name_sequence_start: sequence_start,
                      name_sequence_length: sequence_length,
-                     cobbler_profile: profile,
-                     cobbler_machine: machine,
+                     cobbler_interface: cobbler_interface,
                      )
         end
       end

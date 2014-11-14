@@ -40,8 +40,7 @@ module Alces
           @default_name_index_size=options[:name_sequence_length].to_i || 2
           @default_name=options[:name] || "node"
           @detected_macs=[]
-          @cobbler_profile=options[:cobbler_profile]
-          @cobbler_machine=options[:cobbler_machine]
+          @cobbler_interface=options[:cobbler_interface]
         end
 
         def listen!
@@ -126,7 +125,7 @@ module Alces
         def update_cobbler!(name, hwaddr)
           ip=`gethostip -d #{name}`.chomp
           raise "Unable to resolve IP for host:#{name}" if ip.to_s.empty?
-          run(['cobbler','system','add','--name',name,"--profile=#{@cobbler_profile}", '--interface','0','--mac',hwaddr,'--ip-address',ip,'--dns',name,'--hostname',name,'--ksmeta',"'machine'='#{@cobbler_machine}'"]).tap do |r|
+          run(['cobbler','system','edit','--name',name,"--interface=#{@cobbler_interface}",'--mac',hwaddr,]).tap do |r|
             if r.fail?
               raise "Unable to update cobbler database: #{(r.exc && r.exc.message) || r.stderr}"
             end

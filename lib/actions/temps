@@ -208,7 +208,7 @@ for NODE in $NODES; do
   fi
   NO_SLEEP=0
   
-  cmd="ipmitool -H ${IPMI_HEAD}${NODE}${IPMI_TAIL} -U${USERNAME} -E -S ${SDRCACHE} sdr type Temperature"
+  cmd="ipmitool -H ${IPMI_HEAD}${NODE}${IPMI_TAIL} -U${USERNAME} -E -S ${SDRCACHE} -I lanplus sdr type Temperature"
   echo -n "Reading temps on ${NODE}.."
   if ( $cmd > /tmp/alcesipmi.$$ ); then
     echo "OK"
