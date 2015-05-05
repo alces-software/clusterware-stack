@@ -1,9 +1,0 @@
----
-enable_repo_execute: true
-repo_paths:
-- /opt/clusterware/overlays
-profiles:
-- /opt/clusterware/etc/profiles/headnode.yml
-- /opt/clusterware/etc/profiles/compute.yml
-- /opt/clusterware/etc/profiles/login.yml
-- /opt/clusterware/etc/profiles/storage.yml

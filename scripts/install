@@ -81,7 +81,6 @@ else
     cp -r "${alces_SRC_PATH}/${NAME}/etc/global"/* "${alces_PATH}/etc"
     cp -r "${alces_SRC_PATH}/${NAME}/etc/user"/* "${alces_PATH}/etc"
 fi
-mkdir -p "${alces_PATH}/etc/yum.repos.d/"
 chmod 600 "${alces_PATH}/etc/ipmi.conf"
 chmod 600 "${alces_PATH}/etc/ifcfg-bmc"
 say_done $?
@@ -101,22 +100,6 @@ title "Configuring ruby components"
 cd "${alces_PATH}/opt/${BASENAME}/lib/${NAME}/lib/ruby"
 doing 'Configure'
 "${alces_RUBYHOME}/bin/bundle" install --local &> "${alces_PATH}/${LOGDIR}/components-install.log"
-say_done $?
-
-if [ -f ${alces_PATH}/etc/init.d/alces-init ]; then
-  title "Installing Alces init"
-  doing 'Setting up alces init template'
-  mkdir -p ${alces_PATH}/profiles
-  ln -snf ${alces_PATH}/etc/init.d/alces-init ${alces_PATH}/profiles/alces-init.init
-  say_done $?
-fi
-
-title "Site specific"
-doing "Prepare Site specific Links"
-mkdir -p ${alces_PATH}/site_specific
-ln -snf ${alces_PATH}/etc/puppet/environments/alceshpc/modules/alces_stack/templates/config/alces/site_compute.sh ${alces_PATH}/site_specific/compute.sh
-ln -snf ${alces_PATH}/etc/puppet/environments/alceshpc/modules/alces_stack/templates/config/alces/site_storage.sh ${alces_PATH}/site_specific/login.sh
-ln -snf ${alces_PATH}/etc/puppet/environments/alceshpc/modules/alces_stack/templates/config/alces/site_login.sh ${alces_PATH}/site_specific/storage.sh
 say_done $?
 
 title "Installing pdsh"

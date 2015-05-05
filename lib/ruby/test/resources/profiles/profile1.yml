@@ -1,7 +1,0 @@
-:name: compute
-:description: Compute node profile
-:overlays:
-  overlays:
-   - base
-   - slave
-   - compute

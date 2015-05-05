@@ -1,3 +1,0 @@
-local_repo_path: /opt/clusterware/depot/
-local_repo_url: http://service/alces/repo/
-yum_config_path: /opt/clusterware/etc/yum.repos.d/

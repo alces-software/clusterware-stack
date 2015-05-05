@@ -1,4 +1,0 @@
----
-enable_repo_execute: false
-repo_paths:
-- /opt/clusterware/overlays
