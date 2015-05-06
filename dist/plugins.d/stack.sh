@@ -7,4 +7,4 @@
 alias power="alces power"
 alias console="alces console"
 
-export PATH=/opt/clusterware/opt/pdsh/2.29/bin/:$PATH
+export PATH=/opt/clusterware/opt/${alces_OS}/pdsh/2.29/bin/:$PATH
