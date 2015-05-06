@@ -75,11 +75,11 @@ title "Creating initial configuration"
 doing "Create"
 cp -r "${alces_SRC_PATH}/${NAME}/dist/plugins.d"/* "${alces_PATH}/etc/${BASENAME}/plugins.d"
 if (( UID == 0 )); then
-    cp -r "${alces_SRC_PATH}/${NAME}/etc/global"/* "${alces_PATH}/etc"
-    cp -r "${alces_SRC_PATH}/${NAME}/etc/system"/* "${alces_PATH}/etc 2>/dev/null"
+    cp -r "${alces_SRC_PATH}/${NAME}/etc/global"/* "${alces_PATH}/etc >/dev/null 2>&1"
+    cp -r "${alces_SRC_PATH}/${NAME}/etc/system"/* "${alces_PATH}/etc >/dev/null 2>&1"
 else
-    cp -r "${alces_SRC_PATH}/${NAME}/etc/global"/* "${alces_PATH}/etc"
-    cp -r "${alces_SRC_PATH}/${NAME}/etc/user"/* "${alces_PATH}/etc 2>/dev/null"
+    cp -r "${alces_SRC_PATH}/${NAME}/etc/global"/* "${alces_PATH}/etc >/dev/null 2>&1"
+    cp -r "${alces_SRC_PATH}/${NAME}/etc/user"/* "${alces_PATH}/etc >/dev/null 2>&1"
 fi
 chmod 600 "${alces_PATH}/etc/ipmi.conf"
 chmod 600 "${alces_PATH}/etc/ifcfg-bmc"
