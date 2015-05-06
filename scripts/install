@@ -99,7 +99,7 @@ say_done $?
 title "Configuring ruby components"
 cd "${alces_PATH}/opt/${BASENAME}/lib/${NAME}/lib/ruby"
 doing 'Configure'
-"${alces_RUBYHOME}/bin/bundle" install --local &> "${alces_PATH}/${LOGDIR}/components-install.log"
+"${alces_RUBYHOME}/bin/bundle" install --local &> "${alces_PATH}/${LOGDIR}/components-install${alces_OS}.log"
 say_done $?
 
 title "Installing pdsh"
@@ -110,11 +110,11 @@ tar jxf "${alces_ARCHIVES_PATH}/pdsh-2.29.tar.bz2"
 say_done $?
 cd pdsh-2.29
 doing 'Configure'
-./configure --prefix="${alces_PATH}/opt/pdsh/2.29" --with-ssh --with-rcmd-rank-list=ssh,rsh,exec --with-genders &> "${alces_PATH}/${LOGDIR}/pdsh-configure.log"
+./configure --prefix="${alces_PATH}/opt/${alces_OS}/pdsh/2.29" --with-ssh --with-rcmd-rank-list=ssh,rsh,exec --with-genders &> "${alces_PATH}/${LOGDIR}/pdsh-configure-${alces_OS}.log"
 say_done $?
 doing 'Compile'
-make &> "${alces_PATH}/${LOGDIR}/pdsh-make.log"
+make &> "${alces_PATH}/${LOGDIR}/pdsh-make-${alces_OS}.log"
 say_done $?
 doing 'Install'
-make install &> "${alces_PATH}/${LOGDIR}/pdsh-install.log"
+make install &> "${alces_PATH}/${LOGDIR}/pdsh-install-${alces_OS}/.log"
 say_done $?
