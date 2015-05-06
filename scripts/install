@@ -76,10 +76,10 @@ doing "Create"
 cp -r "${alces_SRC_PATH}/${NAME}/dist/plugins.d"/* "${alces_PATH}/etc/${BASENAME}/plugins.d"
 if (( UID == 0 )); then
     cp -r "${alces_SRC_PATH}/${NAME}/etc/global"/* "${alces_PATH}/etc"
-    cp -r "${alces_SRC_PATH}/${NAME}/etc/system"/* "${alces_PATH}/etc"
+    cp -r "${alces_SRC_PATH}/${NAME}/etc/system"/* "${alces_PATH}/etc 2>/dev/null"
 else
     cp -r "${alces_SRC_PATH}/${NAME}/etc/global"/* "${alces_PATH}/etc"
-    cp -r "${alces_SRC_PATH}/${NAME}/etc/user"/* "${alces_PATH}/etc"
+    cp -r "${alces_SRC_PATH}/${NAME}/etc/user"/* "${alces_PATH}/etc 2>/dev/null"
 fi
 chmod 600 "${alces_PATH}/etc/ipmi.conf"
 chmod 600 "${alces_PATH}/etc/ifcfg-bmc"
@@ -116,5 +116,5 @@ doing 'Compile'
 make &> "${alces_PATH}/${LOGDIR}/pdsh-make-${alces_OS}.log"
 say_done $?
 doing 'Install'
-make install &> "${alces_PATH}/${LOGDIR}/pdsh-install-${alces_OS}/.log"
+make install &> "${alces_PATH}/${LOGDIR}/pdsh-install-${alces_OS}.log"
 say_done $?
