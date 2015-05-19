@@ -5,7 +5,7 @@ NAME=stack
 
 alces_modules_version=3.2.9
 
-
+LOGDIR="var/log/${NAME}"
 
 if ! [ -z "$1" ]; then
   alces_deps=$1
